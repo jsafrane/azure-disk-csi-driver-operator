@@ -10,6 +10,7 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/klog"
 
+	"github.com/openshift/azure-disk-csi-driver-operator/pkg/generated"
 	opv1 "github.com/openshift/api/operator/v1"
 	configclient "github.com/openshift/client-go/config/clientset/versioned"
 	configinformers "github.com/openshift/client-go/config/informers/externalversions"
@@ -20,8 +21,6 @@ import (
 	"github.com/openshift/library-go/pkg/operator/csi/csidrivernodeservicecontroller"
 	goc "github.com/openshift/library-go/pkg/operator/genericoperatorclient"
 	"github.com/openshift/library-go/pkg/operator/v1helpers"
-
-	"github.com/openshift/azure-disk-csi-driver-operator/pkg/generated"
 )
 
 const (
@@ -64,7 +63,7 @@ func RunOperator(ctx context.Context, controllerConfig *controllercmd.Controller
 		kubeClient,
 		dynamicClient,
 		kubeInformersForNamespaces,
-		generated.Asset,
+		generated.ReadFile,
 		[]string{
 			"storageclass.yaml",
 			"volumesnapshotclass.yaml",
@@ -93,7 +92,7 @@ func RunOperator(ctx context.Context, controllerConfig *controllercmd.Controller
 		configInformers,
 	).WithCSIDriverControllerService(
 		"AzureDiskDriverControllerServiceController",
-		generated.MustAsset,
+		generated.ReadFile,
 		"controller.yaml",
 		kubeClient,
 		kubeInformersForNamespaces.InformersFor(defaultNamespace),
@@ -105,7 +104,7 @@ func RunOperator(ctx context.Context, controllerConfig *controllercmd.Controller
 		csidrivercontrollerservicecontroller.WithObservedProxyDeploymentHook(),
 	).WithCSIDriverNodeService(
 		"AzureDiskDriverNodeServiceController",
-		generated.MustAsset,
+		generated.ReadFile,
 		"node.yaml",
 		kubeClient,
 		kubeInformersForNamespaces.InformersFor(defaultNamespace),
@@ -114,7 +113,7 @@ func RunOperator(ctx context.Context, controllerConfig *controllercmd.Controller
 	).WithServiceMonitorController(
 		"AzureDiskServiceMonitorController",
 		dynamicClient,
-		generated.Asset,
+		generated.ReadFile,
 		"servicemonitor.yaml",
 	)
 	if err != nil {
